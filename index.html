@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Quiz</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
+    <style>
+        body{
+            background-image:url(wood.jpg);
+        }
+        #myPage .panel {
+            width: 400px;   float: left;    margin: 20px;
+        }
+        #myPage .panel-heading {
+            background-color: cyan;     color: black; 
+        }         
+        #myPage .panel-body {
+            background-color: #F0F8FF;      color: black; 
+        }
+        #myPage .panel-footer {
+            background-color: #7FFFD4;      color: black; 
+        }
+        .mytext{
+            font-size: 18pt;
+            margin-left: 40px;
+        }
+        .jumbotron{
+            text-align: center;
+            color: white;
+            background-image: url(dwood.jpg);
+        }
+        .titles{
+            background-color:blue;
+            color:white;
+            text-align:center;
+        }
+        
+        .item img{
+            width:1000px;
+        }      
+    </style>
+
+    <script type="text/template" id="Template">
+        <div class="panel panel-default">
+            <div class="panel-heading"> Question {{qNum}}:  {{info.Question}} </div>
+            <div class="panel-body"> A. {{info.A}} </div>
+            <div class="panel-body"> B. {{info.B}} </div>
+            <div class="panel-body"> C. {{info.C}} </div>
+            <div class="panel-body"> D. {{info.D}} </div>           
+            <div class="panel-footer">
+                <input type="text" id="{{qKey}}" placeholder="Choice letter">
+            </div>
+        </div>
+    </script>
+
+    <script>
+        var data; 
+
+        function getData(){         
+            $.getJSON("https://bullying-adc2d.firebaseio.com/.json", function(result){
+                data = result;
+                displayQuestions(); 
+            }); 
+        }
+    
+
+        function displayQuestions(){
+            var build ="";
+            var template = document.getElementById("Template").innerHTML;  
+            var qNumber =0; 
+        
+            for(var key in data){
+                qNumber++;
+                quesJSON ={
+                    "info": data[key], 
+                    "qKey": key,
+                    "qNum": qNumber
+                }
+                build += Mustache.render(template, quesJSON);     
+            }
+            document.getElementById("quiz").innerHTML = build;                          
+        }                    
+        
+
+        function checkAnswers(){
+            var score = 0;
+            var count = 0;
+            for(var key in data){
+                var correctAns = data[key].Answer;
+                var userAns = document.getElementById(key).value;               
+                count++;
+                if (userAns.toUpperCase() == correctAns){
+                    score++;
+                }
+                var grd = (score/count * 100).toFixed(0);       
+            }
+            document.getElementById("score").innerHTML = "<h1>You answered " + score + " out of " + count+" questions correctly!<br><br>You got<b> "+ grd + "%</b></h1>"; 
+        }
+    </script>
+</head>
+<body onload="getData()" id="myPage">
+        <div class="container">
+
+                <div class="jumbotron">
+                        <h1>Bullying Quiz</h1>
+                        <p>Multiple Choice Quiz</p> 
+                </div>
+                    
+                <div class="container">
+    <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="Bullying2.html">Types</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="Bullying3.html">Dealing with Bullies</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="Bullying4.html">Statistics</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Quiz<span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="Us.html">About Us</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+
+                <h1>Enter your choices below. Then press "Score Quiz"</h1>
+                
+                <div id="quiz"></div>
+                    <button onclick="checkAnswers()" type="button" class="btn btn-success btn-lg">SCORE QUIZ</button>
+                <div id="score"></div>
+
+        </div>
+</body>
+</html>
